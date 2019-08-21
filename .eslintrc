@@ -18,11 +18,12 @@
   "extends":"eslint:recommended", // Includes replication for jshint nonbsp:true, 
   "env":
   {
-    "browser":true // Was jshint options.browser: true
+    "browser":true, // Was jshint options.browser: true
+    "es6":true
   },
   "parserOptions": 
   {
-    "ecmaVersion": 6,
+    "ecmaVersion": 7,
     "sourceType": "module",
     "ecmaFeatures": 
     {
@@ -34,6 +35,7 @@
 "globals":{
   "global":"writable" // webpack variable for substitution to window
 },
+  "parser":"babel-eslint",
   "rules": 
   {
     // See https://eslint.org/docs/rules/ for more info

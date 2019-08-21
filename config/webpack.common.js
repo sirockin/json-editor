@@ -1,5 +1,4 @@
 
-/* eslint-disable no-undef */
 var webpack = require('webpack');
 
 var bannerText= `/**
@@ -27,14 +26,22 @@ module.exports = {
   
     rules: [
       {
+        enforce: 'pre',
         test: /\.js$/,
         exclude: /node_modules/,
         loader: `eslint-loader`,
         options: {
           // configFile: helpers.root('config/.eslintrc')              
-        }            
+        }, 
       },
-
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: 
+        {
+          loader: "babel-loader"
+        }
+      },
       {
         test: /\.css$/,
         use: [
