@@ -30,15 +30,15 @@ module.exports = webpackMerge(commonConfig, {
   },
 
   plugins: [
+    // new UnminifiedWebpackPlugin(),
     new RemoveStrictPlugin(),           // I have put this in to avoid IE throwing error Assignment to read-only properties is not allowed in strict mode
     new OptimizeCSSAssetsPlugin({
       cssProcessor: require('cssnano'),
       cssProcessorPluginOptions: {
         preset: ['default', { discardComments: { removeAll: true } }],
-      },
-      canPrint: true
+      }/*,
+      canPrint: true*/
     }),
-    new UnminifiedWebpackPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     /*
     new webpack.optimize.UglifyJsPlugin({ // https://github.com/angular/angular/issues/10618
