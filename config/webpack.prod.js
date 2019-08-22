@@ -2,6 +2,7 @@ var webpack = require('webpack');
 var webpackMerge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const RemoveStrictPlugin = require('remove-strict-webpack-plugin');
+var UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
 
@@ -13,8 +14,8 @@ module.exports = webpackMerge(commonConfig, {
   output: {
     path: helpers.root('dist'),
     // publicPath: '/',
-    filename: '[name].js',
-    chunkFilename: '[id].chunk.js'
+    filename: '[name].min.js',
+    chunkFilename: '[id].chunk.min.js'
   },
 
   optimization:{
@@ -28,6 +29,7 @@ module.exports = webpackMerge(commonConfig, {
 
   plugins: [
     new RemoveStrictPlugin(),           // I have put this in to avoid IE throwing error Assignment to read-only properties is not allowed in strict mode
+    new UnminifiedWebpackPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     /*
     new webpack.optimize.UglifyJsPlugin({ // https://github.com/angular/angular/issues/10618
