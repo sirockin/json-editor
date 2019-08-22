@@ -1,10 +1,13 @@
 import './styles/choices.css';
 import './styles/starrating.css';
 
-import { ie9Polyfill } from './ie9';
+import 'core-js'; // See https://babeljs.io/docs/en/babel-preset-env#docsNav
+import 'regenerator-runtime/runtime';
+
+//import { ie9Polyfill } from './ie9';
 import { getDefaults, getPlugins } from './defaults';
 import { Validator } from './validator';
-import { $extend, $each } from './utilities';
+import { $extend, $each } from './utilities'; 
 
 import { htmlTheme } from './themes/html';
 import { bootstrap2Theme } from './themes/bootstrap2';
@@ -832,7 +835,7 @@ JSONEditor.prototype = {
   }
 };
 
-ie9Polyfill();
+// ie9Polyfill();
 JSONEditor.defaults=getDefaults();
 JSONEditor.plugins=getPlugins();
 assignThemes(JSONEditor.defaults.themes);
