@@ -1,6 +1,8 @@
 var webpack = require('webpack');
 var webpackMerge = require('webpack-merge');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserJSPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const RemoveStrictPlugin = require('remove-strict-webpack-plugin');
 var UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
@@ -29,6 +31,13 @@ module.exports = webpackMerge(commonConfig, {
 
   plugins: [
     new RemoveStrictPlugin(),           // I have put this in to avoid IE throwing error Assignment to read-only properties is not allowed in strict mode
+    new OptimizeCSSAssetsPlugin({
+      cssProcessor: require('cssnano'),
+      cssProcessorPluginOptions: {
+        preset: ['default', { discardComments: { removeAll: true } }],
+      },
+      canPrint: true
+    }),
     new UnminifiedWebpackPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     /*
@@ -45,7 +54,6 @@ module.exports = webpackMerge(commonConfig, {
       chunkFilename: '[id].css',
       ignoreOrder: false, // Enable to remove warnings about conflicting order
     }),  
-    
     new webpack.DefinePlugin({
       'process.env': {
         'ENV': JSON.stringify(ENV)
