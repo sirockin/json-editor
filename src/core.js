@@ -4,7 +4,7 @@ import './styles/starrating.css';
 import 'core-js'; // See https://babeljs.io/docs/en/babel-preset-env#docsNav
 import 'regenerator-runtime/runtime';
 
-//import { ie9Polyfill } from './ie9';
+import { ie9Polyfill } from './ie9';
 import { getDefaults, getPlugins } from './defaults';
 import { Validator } from './validator';
 import { $extend, $each } from './utilities'; 
@@ -181,8 +181,12 @@ JSONEditor.prototype = {
   // necessary since we remove the ctor property by doing a literal assignment. Without this
   // the $isplainobject function will think that this is a plain object.
   constructor: JSONEditor,
+  foo: async function(){
+    console.log("Hello from foo!");
+  },
   init: function() {
     var self = this;
+    this.foo();
 
     this.ready = false;
     this.copyClipboard = null;
@@ -835,7 +839,7 @@ JSONEditor.prototype = {
   }
 };
 
-// ie9Polyfill();
+ie9Polyfill();  // this is still required to support ie9, even with standard webpack plugins enabled
 JSONEditor.defaults=getDefaults();
 JSONEditor.plugins=getPlugins();
 assignThemes(JSONEditor.defaults.themes);
