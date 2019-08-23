@@ -31,6 +31,6 @@ module.exports = webpackMerge(commonConfig, {
     contentBase: helpers.root('.'),
     historyApiFallback: true,
     // stats: 'minimal',
-    port:8080
+    port:9001
   }
 });
