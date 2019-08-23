@@ -2,9 +2,9 @@ var webpack = require('webpack');
 var webpackMerge = require('webpack-merge');
 const TerserJSPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const RemoveStrictPlugin = require('remove-strict-webpack-plugin');
-var UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
 
@@ -12,15 +12,14 @@ const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
 
 module.exports = webpackMerge(commonConfig, {
   mode: 'production',
-  devtool: 'source-map',
   output: {
     path: helpers.root('dist'),
-    // publicPath: '/',
-    filename: '[name].min.js',
-    chunkFilename: '[id].chunk.min.js'
+    filename: '[name].js',
+    chunkFilename: '[id].chunk.js'
   },
 
   optimization:{
+    // Enabling splitChunks seems to stop the global JSONEditor object being set
     /*
     splitChunks:{
       chunks:'all'
@@ -30,8 +29,14 @@ module.exports = webpackMerge(commonConfig, {
   },
 
   plugins: [
-    // new UnminifiedWebpackPlugin(),
+    new CleanWebpackPlugin({ // Clean all but dev subdirectory before building
+      cleanOnceBeforeBuildPatterns: ['**/*', 
+       // '!dev/**/*'      // doesn't work
+       '!dev/**'      // works
+      ],      
+    }), 
     new RemoveStrictPlugin(),           // I have put this in to avoid IE throwing error Assignment to read-only properties is not allowed in strict mode
+    // This doesn't seem to actually be minimising the CSS!
     new OptimizeCSSAssetsPlugin({
       cssProcessor: require('cssnano'),
       cssProcessorPluginOptions: {
@@ -40,13 +45,6 @@ module.exports = webpackMerge(commonConfig, {
       canPrint: true*/
     }),
     new webpack.NoEmitOnErrorsPlugin(),
-    /*
-    new webpack.optimize.UglifyJsPlugin({ // https://github.com/angular/angular/issues/10618
-      mangle: {
-        keep_fnames: true
-      }
-    }),
-    */    
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // all options are optional
@@ -60,5 +58,12 @@ module.exports = webpackMerge(commonConfig, {
       }
     })    
   ],
+
+  devServer: {
+    contentBase: helpers.root('.'),
+    historyApiFallback: true,
+    // stats: 'minimal',
+    port:9001
+  }
 
 });
