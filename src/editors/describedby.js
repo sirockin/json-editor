@@ -79,7 +79,7 @@ export var DescribedByEditor = AbstractEditor.extend({
     this.refreshValue();
     this.onChange(true);
   },
-  buildChildEditor: function(ref) {
+  buildChildEditor: /* async */ function(ref) {
     this.refs[ref] = this.editors.length;
 
     var holder = this.theme.getChildEditorHolder();
@@ -87,7 +87,7 @@ export var DescribedByEditor = AbstractEditor.extend({
 
     var schema = $extend({}, this.schema, this.jsoneditor.refs[ref]);
 
-    var editor_class = this.jsoneditor.getEditorClass(schema, this.jsoneditor);
+    var editor_class = /* await */ this.jsoneditor.getEditorClass(schema, this.jsoneditor);
 
     var editor = this.jsoneditor.createEditor(editor_class, {
         jsoneditor: this.jsoneditor,

@@ -1,6 +1,6 @@
 import { AbstractTheme } from '../theme';
 
-export var tailwindTheme = AbstractTheme.extend({
+export default AbstractTheme.extend({
   // Config options that allows changing various aspects of the output
   options: {
     disable_theme_rules: false, // Disable creation of Inline Style Rules

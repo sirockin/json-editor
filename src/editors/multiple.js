@@ -74,45 +74,45 @@ export var MultipleEditor = AbstractEditor.extend({
     self.refreshValue();
     self.refreshHeaderText();
   },
-  buildChildEditor: function(i) {
+  buildChildEditor: /* async */ function(i) {
     var self = this;
     var type = this.types[i];
-    var holder = self.theme.getChildEditorHolder();
-    self.editor_holder.appendChild(holder);
+    var holder = this.theme.getChildEditorHolder();
+    this.editor_holder.appendChild(holder);
 
     var schema;
 
     if(typeof type === "string") {
-      schema = $extend({},self.schema);
+      schema = $extend({},this.schema);
       schema.type = type;
     }
     else {
-      schema = $extend({},self.schema,type);
-      schema = self.jsoneditor.expandRefs(schema);
+      schema = $extend({},this.schema,type);
+      schema = this.jsoneditor.expandRefs(schema);
 
       // If we need to merge `required` arrays
-      if(type && type.required && Array.isArray(type.required) && self.schema.required && Array.isArray(self.schema.required)) {
-        schema.required = self.schema.required.concat(type.required);
+      if(type && type.required && Array.isArray(type.required) && this.schema.required && Array.isArray(this.schema.required)) {
+        schema.required = this.schema.required.concat(type.required);
       }
     }
 
-    var editor = self.jsoneditor.getEditorClass(schema);
+    var editor = /* await */ this.jsoneditor.getEditorClass(schema);
 
-    self.editors[i] = self.jsoneditor.createEditor(editor,{
-      jsoneditor: self.jsoneditor,
+    this.editors[i] = this.jsoneditor.createEditor(editor,{
+      jsoneditor: this.jsoneditor,
       schema: schema,
       container: holder,
-      path: self.path,
-      parent: self,
+      path: this.path,
+      parent: this,
       required: true
     });
-    self.editors[i].preBuild();
-    self.editors[i].build();
-    self.editors[i].postBuild();
+    this.editors[i].preBuild();
+    this.editors[i].build();
+    this.editors[i].postBuild();
 
-    if(self.editors[i].header) self.editors[i].header.style.display = 'none';
+    if(this.editors[i].header) this.editors[i].header.style.display = 'none';
 
-    self.editors[i].option = self.switcher_options[i];
+    this.editors[i].option = this.switcher_options[i];
 
     holder.addEventListener('change_header_text',function() {
       self.refreshHeaderText();

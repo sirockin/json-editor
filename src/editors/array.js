@@ -233,13 +233,13 @@ export var ArrayEditor = AbstractEditor.extend({
 
     return this.item_info[stringified];
   },
-  getElementEditor: function(i) {
+  getElementEditor: /* async */ function(i) {
     var item_info = this.getItemInfo(i);
     var schema = this.getItemSchema(i);
     schema = this.jsoneditor.expandRefs(schema);
     schema.title = item_info.title+' '+(i+1);
 
-    var editor = this.jsoneditor.getEditorClass(schema);
+    var editor = /* await */ this.jsoneditor.getEditorClass(schema);
 
     var holder;
     if(this.tabs_holder) {
@@ -501,11 +501,11 @@ export var ArrayEditor = AbstractEditor.extend({
       }
     }
   },
-  addRow: function(value, initial) {
+  addRow: /* async */ function(value, initial) {
     var self = this;
     var i = this.rows.length;
 
-    self.rows[i] = this.getElementEditor(i);
+    self.rows[i] = /* await */ this.getElementEditor(i);
     self.row_cache[i] = self.rows[i];
 
     if(self.tabs_holder) {

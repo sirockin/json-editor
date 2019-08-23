@@ -1,7 +1,7 @@
 // Base Foundation theme
 import { AbstractTheme } from '../theme';
 
-export var foundationTheme = AbstractTheme.extend({
+export var foundation = AbstractTheme.extend({
   /* Theme config options that allows changing various aspects of the output */
   options: {
     'disable_theme_rules': false
@@ -146,7 +146,7 @@ export var foundationTheme = AbstractTheme.extend({
 });
 
 // Foundation 3 Specific Theme
-export var foundation3Theme = foundationTheme.extend({
+export var foundation3 = foundation.extend({
   getHeaderButtonHolder: function() {
     var el = this._super();
     el.style.fontSize = '.6em';
@@ -241,7 +241,7 @@ export var foundation3Theme = foundationTheme.extend({
 });
 
 // Foundation 4 Specific Theme
-export var foundation4Theme = foundationTheme.extend({
+export var foundation4 = foundation.extend({
   getHeaderButtonHolder: function() {
     var el = this._super();
     el.style.fontSize = '.6em';
@@ -267,7 +267,7 @@ export var foundation4Theme = foundationTheme.extend({
 });
 
 // Foundation 5 Specific Theme
-export var foundation5Theme = foundationTheme.extend({
+export var foundation5 = foundation.extend({
   getFormInputDescription: function(text) {
     var el = this._super(text);
     el.style.fontSize = '.8rem';
@@ -360,7 +360,7 @@ export var foundation5Theme = foundationTheme.extend({
 
 });
 
-export var foundation6Theme = foundation5Theme.extend({
+export var foundation6 = foundation5.extend({
   getIndentedPanel: function() {
     var el = document.createElement('div');
     el.classList.add('callout', 'secondary');

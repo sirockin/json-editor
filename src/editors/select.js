@@ -360,6 +360,11 @@ export var SelectEditor = AbstractEditor.extend({
       }
     });
 
+    if( !this.input)
+    {
+      console.warn("showValidationErrors() for select editor can not display errors as input is not yet created");
+      return;
+    }
     if (messages.length) {
       this.theme.addInputError(this.input, messages.join('. ') + '.');
     }

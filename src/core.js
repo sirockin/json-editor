@@ -9,17 +9,6 @@ import { getDefaults, getPlugins } from './defaults';
 import { Validator } from './validator';
 import { $extend, $each } from './utilities'; 
 
-import { htmlTheme } from './themes/html';
-import { bootstrap2Theme } from './themes/bootstrap2';
-import { bootstrap3Theme } from './themes/bootstrap3';
-import { bootstrap4Theme } from './themes/bootstrap4';
-import { foundationTheme, foundation3Theme, foundation4Theme, foundation5Theme, foundation6Theme } from './themes/foundation';
-import { jqueryuiTheme } from './themes/jqueryui';
-import { barebonesTheme } from './themes/jsoneditor.barebones-theme';
-import { materializeTheme } from './themes/materialize';
-import { spectreTheme } from './themes/spectre';
-import { tailwindTheme } from './themes/tailwind';
-
 import { AbstractEditor } from './editor';
 import { AceEditor } from './editors/ace';
 import { ArrayEditor } from './editors/array';
@@ -94,24 +83,6 @@ var assignIconlibs = function(iconlibs)
   iconlibs.spectre = spectreIconlib;
 }
 
-var assignThemes = function (themes)
-{
-  themes.html = htmlTheme;
-  themes.bootstrap2 = bootstrap2Theme;
-  themes.bootstrap3 = bootstrap3Theme;
-  themes.bootstrap4 = bootstrap4Theme;
-  themes.foundation = foundationTheme;
-  themes.foundation3 = foundation3Theme;
-  themes.foundation4 = foundation4Theme;
-  themes.foundation5 = foundation5Theme;
-  themes.foundation6 = foundation6Theme;
-  themes.jqueryui = jqueryuiTheme;
-  themes.barebonesTheme = barebonesTheme;
-  themes.materialize = materializeTheme;
-  themes.spectre = spectreTheme;
-  themes.tailwind = tailwindTheme;  
-}
-
 // Internal helper function called only here so we won't export as part of class
 // Previously the assignment to the JSONEditor.defaults.editors was done in each of the editor
 // files but doing it this way removes each of the editors' dependency on JSONEditor
@@ -170,6 +141,7 @@ var assignTemplates = function(templates)
 
 export class JSONEditor
 {
+
   constructor(element,options) 
   {
     if (!(element instanceof Element)) {
@@ -182,7 +154,6 @@ export class JSONEditor
   }
 
   async init() {
-    var self = this;
     this.ready = false;
     this.copyClipboard = null;
     // full references info
@@ -190,15 +161,9 @@ export class JSONEditor
     this.refs_prefix = "#/counter/";
     this.refs_counter = 1;
 
-    var theme_name = this.options.theme || JSONEditor.defaults.theme;
-    var theme_class = JSONEditor.defaults.themes[theme_name];
-    if(!theme_class) throw "Unknown theme " + theme_name;
-
     this.schema = this.options.schema;
-    this.theme = new theme_class();
 
-    this.element.setAttribute('data-theme', theme_name);
-    if (!this.theme.options.disable_theme_rules) this.addNewStyleRules(theme_name, this.theme.rules);
+    await this.createTheme(); // Maybe we can await this later - not sure when we need it
 
     this.template = this.options.template;
     this.refs = this.options.refs || {};
@@ -217,48 +182,150 @@ export class JSONEditor
     // Fetch all external refs via ajax
     var fetchUrl = document.location.toString();
     var fileBase = this._getFileBase();
-    this._loadExternalRefs(this.schema, function() {
-      self._getDefinitions(self.schema, fetchUrl + '#/definitions/');
-      
-      // Validator options
-      var validator_options = {};
-      if(self.options.custom_validators) {
-        validator_options.custom_validators = self.options.custom_validators;
-      }
-      self.validator = new Validator(self,null,validator_options, JSONEditor.defaults);
-      
-      // Create the root editor
-      var schema = self.expandRefs(self.schema);
-      var editor_class = /* await */ self.getEditorClass(schema);
-      self.root = self.createEditor(editor_class, {
-        jsoneditor: self,
-        schema: schema,
-        required: true,
-        container: self.root_container
-      });
-      
-      self.root.preBuild();
-      self.root.build();
-      self.root.postBuild();
-
-      // Starting data
-      if(self.options.hasOwnProperty('startval')) self.root.setValue(self.options.startval);
-
-      self.validation_results = self.validator.validate(self.root.getValue());
-      self.root.showValidationErrors(self.validation_results);
-      self.ready = true;
-
-      // Fire ready event asynchronously
-      window.requestAnimationFrame(function() {
-        if(!self.ready) return;
-        self.validation_results = self.validator.validate(self.root.getValue());
-        self.root.showValidationErrors(self.validation_results);
-        self.trigger('ready');
-        self.trigger('change');
-      });
-    }, fetchUrl, fileBase);
+    this._loadExternalRefs(this.schema, ()=>{this.onExternalRefsLoaded(fetchUrl);}, fetchUrl, fileBase);
   }
 
+  async createTheme()
+  {
+    let theme_name = this.options.theme || JSONEditor.defaults.theme;
+    let theme_class = await this.getThemeClass(theme_name);
+    // var theme_class = JSONEditor.defaults.themes[theme_name];
+    if(!theme_class) throw "Unknown theme " + theme_name;
+
+    this.theme = new theme_class();
+
+    this.element.setAttribute('data-theme', theme_name);
+    if (!this.theme.options.disable_theme_rules) this.addNewStyleRules(theme_name, this.theme.rules);
+  }
+
+  async getThemeClass(theme_name)
+  {
+    /*
+    import { htmlTheme } from './themes/html';
+    import { bootstrap2Theme } from './themes/bootstrap2';
+    import { bootstrap3Theme } from './themes/bootstrap3';
+    import { foundationTheme } from './themes/foundation';
+    import { foundationTheme, foundation3Theme, foundation4Theme, foundation5Theme, foundation6Theme } from './themes/foundation';
+    import { jqueryuiTheme } from './themes/jqueryui';
+    import { barebonesTheme } from './themes/jsoneditor.barebones-theme';
+    import { materializeTheme } from './themes/materialize';
+    import { spectreTheme } from './themes/spectre';
+    import { tailwindTheme } from './themes/tailwind';
+    */
+
+    /*
+      themes.html = htmlTheme;
+      themes.bootstrap2 = bootstrap2Theme;
+      themes.bootstrap3 = bootstrap3Theme;
+      themes.foundation = foundationTheme;
+      themes.foundation = foundationTheme;
+      themes.foundation3 = foundation3Theme;
+      themes.foundation4 = foundation4Theme;
+      themes.foundation5 = foundation5Theme;
+      themes.foundation6 = foundation6Theme;
+      themes.jqueryui = jqueryuiTheme;
+      themes.barebonesTheme = barebonesTheme;
+      themes.materialize = materializeTheme;
+      themes.spectre = spectreTheme;
+      themes.tailwind = tailwindTheme;  
+      */
+
+      let themeModule;
+      switch(theme_name)
+      {
+        case "barebones":
+          themeModule = await import(/* webpackChunkName: "barebonesTheme" */ './themes/barebones');
+          break;
+        case "bootstrap2":
+          themeModule = await import(/* webpackChunkName: "bootstrap2Theme" */ './themes/bootstrap2');
+          break;
+        case "bootstrap3":
+          themeModule = await import(/* webpackChunkName: "bootstrap3Theme" */ './themes/bootstrap3');
+          break;
+        case "bootstrap4":
+            themeModule = await import(/* webpackChunkName: "bootstrap4Theme" */ './themes/bootstrap4');
+            break;
+        // Foundation themes are in one file so no default
+        case "foundation":
+            themeModule = await import(/* webpackChunkName: "foundationTheme" */ './themes/foundation');
+            return themeModule.foundation;
+        case "foundation3":
+            themeModule = await import(/* webpackChunkName: "foundationTheme" */ './themes/foundation');
+            return themeModule.foundation3;
+        case "foundation4":
+            themeModule = await import(/* webpackChunkName: "foundationTheme" */ './themes/foundation');
+            return themeModule.foundation4;
+        case "foundation5":
+            themeModule = await import(/* webpackChunkName: "foundationTheme" */ './themes/foundation');
+            return themeModule.foundation5;
+        case "foundation6":
+            themeModule = await import(/* webpackChunkName: "foundationTheme" */ './themes/foundation');
+            return themeModule.foundation6;
+        case "html":
+            themeModule = await import(/* webpackChunkName: "htmlTheme" */ './themes/html');
+            break;
+        case "jqueryui":
+            themeModule = await import(/* webpackChunkName: "jqueryuiTheme" */ './themes/jqueryui');
+            break;
+        case "materialize":
+            themeModule = await import(/* webpackChunkName: "jqueryuiTheme" */ './themes/materialize');
+            break;
+        case "spectre":
+            themeModule = await import(/* webpackChunkName: "spectreTheme" */ './themes/spectre');
+            break;
+        case "tailwind":
+            themeModule = await import(/* webpackChunkName: "tailwindTheme" */ './themes/tailwind');
+            break;
+                                                      
+
+
+        default:
+         throw Error("Could not find theme name:", theme_name);
+      }
+      return themeModule.default;
+    }
+
+  /* async */ onExternalRefsLoaded(fetchUrl) {
+    let self = this;
+    this._getDefinitions(this.schema, fetchUrl + '#/definitions/');
+    
+    // Validator options
+    var validator_options = {};
+    if(this.options.custom_validators) {
+      validator_options.custom_validators = this.options.custom_validators;
+    }
+    this.validator = new Validator(this,null,validator_options, JSONEditor.defaults);
+    
+    // Create the root editor
+    var schema = this.expandRefs(this.schema);
+    var editor_class = /* await */ this.getEditorClass(schema);
+    this.root = this.createEditor(editor_class, {
+      jsoneditor: this,
+      schema: schema,
+      required: true,
+      container: this.root_container
+    });
+    
+    this.root.preBuild();
+    this.root.build();
+    this.root.postBuild();
+
+    // Starting data
+    if(this.options.hasOwnProperty('startval')) this.root.setValue(this.options.startval);
+
+    this.validation_results = this.validator.validate(this.root.getValue());
+    this.root.showValidationErrors(this.validation_results);
+    this.ready = true;
+
+    // Fire ready event asynchronously
+    window.requestAnimationFrame(function() {
+      if(!self.ready) return;
+      self.validation_results = self.validator.validate(self.root.getValue());
+      self.root.showValidationErrors(self.validation_results);
+      self.trigger('ready');
+      self.trigger('change');
+    });
+  }
   getValue() 
   {
     if(!this.ready) throw "JSON Editor not ready yet.  Listen for 'ready' event before getting the value";
@@ -364,7 +431,8 @@ export class JSONEditor
     return this;
   }
   
-  /*async*/ getEditorClass(schema) {
+  getEditorClassName(schema)
+  {
     var classname;
 
     schema = this.expandSchema(schema);
@@ -378,11 +446,30 @@ export class JSONEditor
         }
       }
     });
+    if(!classname)
+    {
+      throw "Unknown editor for schema "+JSON.stringify(schema);
+    }
+    console.debug("getEditorClassName() returning", classname);
+    return classname;
+  }
 
-    if(!classname) throw "Unknown editor for schema "+JSON.stringify(schema);
+  getEditorClassFromClassName(classname)
+  {
     if(!JSONEditor.defaults.editors[classname]) throw "Unknown editor "+classname;
-
+    console.log("JSONEditor.getEditorClass() returning class for ", classname);
     return JSONEditor.defaults.editors[classname];
+  }
+
+  getEditorClass(schema) {
+    
+    let classname = this.getEditorClassName(schema);
+    return this.getEditorClassFromClassName(classname);
+  }
+
+  getAllEditorClasses(schema)
+  {
+
   }
 
   createEditor(editor_class, options) {
@@ -661,8 +748,8 @@ export class JSONEditor
     }
     return schema;
   }
-  expandSchema(schema, fileBase) {
-    var self = this;
+
+  expandSchema(schema) {
     var extended = $extend({},schema);
     var i;
 
@@ -670,45 +757,45 @@ export class JSONEditor
     if(typeof schema.type === 'object') {
       // Array of types
       if(Array.isArray(schema.type)) {
-        $each(schema.type, function(key,value) {
+        $each(schema.type, (key,value)=> {
           // Schema
           if(typeof value === 'object') {
-            schema.type[key] = self.expandSchema(value);
+            schema.type[key] = this.expandSchema(value);
           }
         });
       }
       // Schema
       else {
-        schema.type = self.expandSchema(schema.type);
+        schema.type = this.expandSchema(schema.type);
       }
     }
     // Version 3 `disallow`
     if(typeof schema.disallow === 'object') {
       // Array of types
       if(Array.isArray(schema.disallow)) {
-        $each(schema.disallow, function(key,value) {
+        $each(schema.disallow, (key,value)=> {
           // Schema
           if(typeof value === 'object') {
-            schema.disallow[key] = self.expandSchema(value);
+            schema.disallow[key] = this.expandSchema(value);
           }
         });
       }
       // Schema
       else {
-        schema.disallow = self.expandSchema(schema.disallow);
+        schema.disallow = this.expandSchema(schema.disallow);
       }
     }
     // Version 4 `anyOf`
     if(schema.anyOf) {
-      $each(schema.anyOf, function(key,value) {
-        schema.anyOf[key] = self.expandSchema(value);
+      $each(schema.anyOf, (key,value)=> {
+        schema.anyOf[key] = this.expandSchema(value);
       });
     }
     // Version 4 `dependencies` (schema dependencies)
     if(schema.dependencies) {
-      $each(schema.dependencies,function(key,value) {
+      $each(schema.dependencies,(key,value)=> {
         if(typeof value === "object" && !(Array.isArray(value))) {
-          schema.dependencies[key] = self.expandSchema(value);
+          schema.dependencies[key] = this.expandSchema(value);
         }
       });
     }
@@ -855,7 +942,6 @@ export class JSONEditor
 ie9Polyfill();  // this is still required to support ie9, even with standard webpack plugins enabled
 JSONEditor.defaults=getDefaults();
 JSONEditor.plugins=getPlugins();
-assignThemes(JSONEditor.defaults.themes);
 JSONEditor.AbstractEditor = AbstractEditor;
 assignDefaultEditors(JSONEditor.defaults.editors);
 assignTemplates(JSONEditor.defaults.templates);

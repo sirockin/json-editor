@@ -381,22 +381,22 @@ export var ObjectEditor = AbstractEditor.extend({
 
     // If the object should be rendered as a table row
     if(this.options.table_row) {
-      $each(this.schema.properties, function(key,schema) {
-        var editor = self.jsoneditor.getEditorClass(schema);
-        self.editors[key] = self.jsoneditor.createEditor(editor,{
-          jsoneditor: self.jsoneditor,
+      $each(this.schema.properties, /* async */ (key,schema) =>{
+        var editor = /* await */ this.jsoneditor.getEditorClass(schema);
+        this.editors[key] = this.jsoneditor.createEditor(editor,{
+          jsoneditor: this.jsoneditor,
           schema: schema,
-          path: self.path+'.'+key,
-          parent: self,
+          path: this.path+'.'+key,
+          parent: this,
           compact: true,
           required: true
         });
-        self.editors[key].preBuild();
+        this.editors[key].preBuild();
 
-        var width = self.editors[key].options.hidden? 0 : (self.editors[key].options.grid_columns || self.editors[key].getNumColumns());
+        var width = this.editors[key].options.hidden? 0 : (this.editors[key].options.grid_columns || this.editors[key].getNumColumns());
 
-        self.minwidth += width;
-        self.maxwidth += width;
+        this.minwidth += width;
+        this.maxwidth += width;
       });
       this.no_link_holder = true;
     }
@@ -977,7 +977,7 @@ export var ObjectEditor = AbstractEditor.extend({
       this.layoutEditors();
     }
   },
-  addObjectProperty: function(name, prebuild_only) {
+  addObjectProperty: /* async */ function(name, prebuild_only) {
     var self = this;
 
     // Property is already added
@@ -1003,7 +1003,7 @@ export var ObjectEditor = AbstractEditor.extend({
 
 
       // Add the property
-      var editor = self.jsoneditor.getEditorClass(schema);
+      var editor = /* await */ self.jsoneditor.getEditorClass(schema);
 
       self.editors[name] = self.jsoneditor.createEditor(editor,{
         jsoneditor: self.jsoneditor,

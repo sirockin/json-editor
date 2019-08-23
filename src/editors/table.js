@@ -30,7 +30,7 @@ export var TableEditor = ArrayEditor.extend({
     this.width = 12;
     this._super();
   },
-  build: function() {
+  build: /* async */ function() {
     var self = this;
     this.table = this.theme.getTable();
     this.container.appendChild(this.table);
@@ -42,7 +42,7 @@ export var TableEditor = ArrayEditor.extend({
     this.table.appendChild(this.row_holder);
 
     // Determine the default value of array element
-    var tmp = this.getElementEditor(0,true);
+    var tmp = /* await */ this.getElementEditor(0,true);
     this.item_default = tmp.getDefault();
     this.width = tmp.getNumColumns() + 2;
 
@@ -104,9 +104,9 @@ export var TableEditor = ArrayEditor.extend({
   getItemTitle: function() {
     return this.item_title;
   },
-  getElementEditor: function(i,ignore) {
+  getElementEditor: /* async */ function(i,ignore) {
     var schema_copy = $extend({},this.schema.items);
-    var editor = this.jsoneditor.getEditorClass(schema_copy, this.jsoneditor);
+    var editor = /* await */ this.jsoneditor.getEditorClass(schema_copy, this.jsoneditor);
     var row = this.row_holder.appendChild(this.theme.getTableRow());
     var holder = row;
     if(!this.item_has_child_editors) {
@@ -126,7 +126,7 @@ export var TableEditor = ArrayEditor.extend({
 
     ret.preBuild();
     if(!ignore) {
-      ret.build();
+      /* await */ ret.build();
       ret.postBuild();
 
       ret.controls_cell = row.appendChild(this.theme.getTableCell());
@@ -318,11 +318,11 @@ export var TableEditor = ArrayEditor.extend({
     });
     this.serialized = JSON.stringify(this.value);
   },
-  addRow: function(value) {
+  addRow: /* async */ function(value) {
     var self = this;
     var i = this.rows.length;
 
-    self.rows[i] = this.getElementEditor(i);
+    self.rows[i] = /* await */ this.getElementEditor(i);
 
     var controls_holder = self.rows[i].table_controls;
 
