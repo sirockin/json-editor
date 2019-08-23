@@ -168,26 +168,21 @@ var assignTemplates = function(templates)
 }
 
 
-export var JSONEditor = function(element,options) {
-  if (!(element instanceof Element)) {
-    throw new Error('element should be an instance of Element');
+export class JSONEditor
+{
+  constructor(element,options) 
+  {
+    if (!(element instanceof Element)) {
+      throw new Error('element should be an instance of Element');
+    }
+    options = $extend({},JSONEditor.defaults.options,options||{});
+    this.element = element;
+    this.options = options;
+    this.init();
   }
-  options = $extend({},JSONEditor.defaults.options,options||{});
-  this.element = element;
-  this.options = options;
-  this.init();
-};
-JSONEditor.prototype = {
-  // necessary since we remove the ctor property by doing a literal assignment. Without this
-  // the $isplainobject function will think that this is a plain object.
-  constructor: JSONEditor,
-  foo: async function(){
-    console.log("Hello from foo!");
-  },
-  init: function() {
-    var self = this;
-    this.foo();
 
+  async init() {
+    var self = this;
     this.ready = false;
     this.copyClipboard = null;
     // full references info
@@ -234,7 +229,7 @@ JSONEditor.prototype = {
       
       // Create the root editor
       var schema = self.expandRefs(self.schema);
-      var editor_class = self.getEditorClass(schema);
+      var editor_class = /* await */ self.getEditorClass(schema);
       self.root = self.createEditor(editor_class, {
         jsoneditor: self,
         schema: schema,
@@ -262,20 +257,23 @@ JSONEditor.prototype = {
         self.trigger('change');
       });
     }, fetchUrl, fileBase);
-  },
+  }
 
-  getValue: function() {
+  getValue() 
+  {
     if(!this.ready) throw "JSON Editor not ready yet.  Listen for 'ready' event before getting the value";
 
     return this.root.getValue();
-  },
-  setValue: function(value) {
+  }
+
+  setValue(value) {
     if(!this.ready) throw "JSON Editor not ready yet.  Listen for 'ready' event before setting the value";
 
     this.root.setValue(value);
     return this;
-  },
-  validate: function(value) {
+  }
+
+  validate(value) {
     if(!this.ready) throw "JSON Editor not ready yet.  Listen for 'ready' event before validating";
     
     // Custom value
@@ -286,8 +284,9 @@ JSONEditor.prototype = {
     else {
       return this.validation_results;
     }
-  },
-  destroy: function() {
+  }
+
+  destroy() {
     if(this.destroyed) return;
     if(!this.ready) return;
     
@@ -307,15 +306,17 @@ JSONEditor.prototype = {
     this.element.removeAttribute('data-theme');
         
     this.destroyed = true;
-  },
-  on: function(event, callback) {
+  }
+
+  on(event, callback) {
     this.callbacks = this.callbacks || {};
     this.callbacks[event] = this.callbacks[event] || [];
     this.callbacks[event].push(callback);
     
     return this;
-  },
-  off: function(event, callback) {
+  }
+
+  off(event, callback) {
     // Specific callback
     if(event && callback) {
       this.callbacks = this.callbacks || {};
@@ -338,8 +339,9 @@ JSONEditor.prototype = {
     }
     
     return this;
-  },
-  trigger: function(event, editor) {
+  }
+
+  trigger(event, editor) {
     if(this.callbacks && this.callbacks[event] && this.callbacks[event].length) {
       for(var i=0; i<this.callbacks[event].length; i++) {
         this.callbacks[event][i].apply(this, [editor]);
@@ -347,8 +349,9 @@ JSONEditor.prototype = {
     }
     
     return this;
-  },
-  setOption: function(option, value) {
+  }
+
+  setOption(option, value) {
     if(option === "show_errors") {
       this.options.show_errors = value;
       this.onChange();
@@ -359,8 +362,9 @@ JSONEditor.prototype = {
     }
     
     return this;
-  },
-  getEditorClass: function(schema) {
+  }
+  
+  /*async*/ getEditorClass(schema) {
     var classname;
 
     schema = this.expandSchema(schema);
@@ -379,12 +383,14 @@ JSONEditor.prototype = {
     if(!JSONEditor.defaults.editors[classname]) throw "Unknown editor "+classname;
 
     return JSONEditor.defaults.editors[classname];
-  },
-  createEditor: function(editor_class, options) {
+  }
+
+  createEditor(editor_class, options) {
     options = $extend({},editor_class.options||{},options);
     return new editor_class(options, JSONEditor.defaults);
-  },
-  onChange: function() {
+  }
+
+  onChange() {
     if(!this.ready) return;
     
     if(this.firing_change) return;
@@ -411,8 +417,9 @@ JSONEditor.prototype = {
     });
     
     return this;
-  },
-  compileTemplate: function(template, name) {
+  }
+
+  compileTemplate(template, name) {
     name = name || JSONEditor.defaults.template;
 
     var engine;
@@ -433,8 +440,9 @@ JSONEditor.prototype = {
     if(!engine.compile) throw "Invalid template engine set";
 
     return engine.compile(template);
-  },
-  _data: function(el,key,value) {
+  }
+
+  _data(el,key,value) {
     // Setting data
     if(arguments.length === 3) {
       var uuid;
@@ -455,29 +463,33 @@ JSONEditor.prototype = {
       
       return this.__data[el.getAttribute('data-jsoneditor-'+key)];
     }
-  },
-  registerEditor: function(editor) {
+  }
+
+  registerEditor(editor) {
     this.editors = this.editors || {};
     this.editors[editor.path] = editor;
     return this;
-  },
-  unregisterEditor: function(editor) {
+  }
+
+  unregisterEditor(editor) {
     this.editors = this.editors || {};
     this.editors[editor.path] = null;
     return this;
-  },
-  getEditor: function(path) {
+  }
+
+  getEditor(path) {
     if(!this.editors) return;
     return this.editors[path];
-  },
-  watch: function(path,callback) {
+  }
+
+  watch(path,callback) {
     this.watchlist = this.watchlist || {};
     this.watchlist[path] = this.watchlist[path] || [];
     this.watchlist[path].push(callback);
     
     return this;
-  },
-  unwatch: function(path,callback) {
+  }
+  unwatch(path,callback) {
     if(!this.watchlist || !this.watchlist[path]) return this;
     // If removing all callbacks for a path
     if(!callback) {
@@ -492,23 +504,23 @@ JSONEditor.prototype = {
     }
     this.watchlist[path] = newlist.length? newlist : null;
     return this;
-  },
-  notifyWatchers: function(path) {
+  }
+  notifyWatchers(path) {
     if(!this.watchlist || !this.watchlist[path]) return this;
     for(var i=0; i<this.watchlist[path].length; i++) {
       this.watchlist[path][i]();
     }
-  },
-  isEnabled: function() {
+  }
+  isEnabled() {
     return !this.root || this.root.isEnabled();
-  },
-  enable: function() {
+  }
+  enable() {
     this.root.enable();
-  },
-  disable: function() {
+  }
+  disable() {
     this.root.disable();
-  },
-  _getDefinitions: function(schema,path) {
+  }
+  _getDefinitions(schema,path) {
     if(schema.definitions) {
       for(var i in schema.definitions) {
         if(!schema.definitions.hasOwnProperty(i)) continue;
@@ -518,8 +530,8 @@ JSONEditor.prototype = {
         }
       }
     }
-  },
-  _getExternalRefs: function(schema, fetchUrl) {
+  }
+  _getExternalRefs(schema, fetchUrl) {
     var refs = {};
     var merge_refs = function(newrefs) {
       for(var i in newrefs) {
@@ -553,20 +565,20 @@ JSONEditor.prototype = {
       }
     }
     return refs;
-  },
-  _getFileBase: function() {
+  }
+  _getFileBase() {
     var fileBase = this.options.ajaxBase;
     if (typeof fileBase === 'undefined') {
       fileBase = this._getFileBaseFromFileLocation(document.location.toString());
     }
     return fileBase;
-  },
-  _getFileBaseFromFileLocation: function(fileLocationString) {
+  }
+  _getFileBaseFromFileLocation(fileLocationString) {
     var pathItems = fileLocationString.split("/");
     pathItems.pop();
     return pathItems.join("/")+"/";
-  },
-  _loadExternalRefs: function(schema, callback, fetchUrl, fileBase) {
+  }
+  _loadExternalRefs(schema, callback, fetchUrl, fileBase) {
     var self = this;
     var refs = this._getExternalRefs(schema, fetchUrl);
     var done = 0, waiting = 0, callback_fired = false;
@@ -621,8 +633,8 @@ JSONEditor.prototype = {
     if(!waiting) {
       callback();
     }
-  },
-  expandRefs: function(schema, recurseAllOf) {
+  }
+  expandRefs(schema, recurseAllOf) {
     schema = $extend({},schema);
     
     while (schema.$ref) {
@@ -648,8 +660,8 @@ JSONEditor.prototype = {
       schema = this.extendSchemas(schema, $extend({},this.refs[ref]));
     }
     return schema;
-  },
-  expandSchema: function(schema, fileBase) {
+  }
+  expandSchema(schema, fileBase) {
     var self = this;
     var extended = $extend({},schema);
     var i;
@@ -737,8 +749,8 @@ JSONEditor.prototype = {
     }
     
     return this.expandRefs(extended);
-  },
-  extendSchemas: function(obj1, obj2) {
+  }
+  extendSchemas(obj1, obj2) {
     obj1 = $extend({},obj1);
     obj2 = $extend({},obj2);
 
@@ -809,14 +821,14 @@ JSONEditor.prototype = {
     });
 
     return extended;
-  },
-  setCopyClipboardContents: function(value) {
+  }
+  setCopyClipboardContents(value) {
     this.copyClipboard = value;
-  },
-  getCopyClipboardContents: function() {
+  }
+  getCopyClipboardContents() {
     return this.copyClipboard;
-  },
-  addNewStyleRules: function(themeName, rules) {
+  }
+  addNewStyleRules(themeName, rules) {
     var styleTag = document.querySelector('#theme-' + themeName);
     if (!styleTag) {
       styleTag = document.createElement('style');
@@ -838,6 +850,7 @@ JSONEditor.prototype = {
     }
   }
 };
+// End of class declaration.
 
 ie9Polyfill();  // this is still required to support ie9, even with standard webpack plugins enabled
 JSONEditor.defaults=getDefaults();
