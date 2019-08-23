@@ -25,8 +25,9 @@
   "scripts": {
     "prepare": "npm run build",
     "build.prod": "webpack --config config/webpack.prod.js --progress --profile --bail",
+    "build.min": "webpack --config config/webpack.min.js --progress --profile --bail",
     "build.dev": "webpack --config config/webpack.dev.js --progress --profile --bail",
-    "build": "npm run build.prod && npm run build.dev",
+    "build": "npm run build.prod && npm run build.min",
     "start": "npm run start.dev",
     "start.dev": "webpack-dev-server --config config/webpack.dev.js --host 0.0.0.0 --progress",
     "start.prod": "webpack-dev-server --config config/webpack.prod.js --host 0.0.0.0 --progress",
