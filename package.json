@@ -31,6 +31,7 @@
     "test-headless": "karma start config/karma.conf.js --singleRun true --browsers ChromeHeadless",
     "serve-test": "http-server --p 9001",
     "docker-test": "cd tests && docker-compose run --rm node npm run build && docker-compose up -d && docker-compose ps && docker-compose run --rm codeceptjs codeceptjs run-multiple basic --invert --grep  @optional",
+    "docker-test-failing-button": "cd tests && docker-compose run --rm node npm run build && docker-compose up -d && docker-compose ps && docker-compose run --rm codeceptjs codeceptjs run-multiple basic --grep @failing_button",
     "preversion": "npm run test-headless && npm run docker-test",
     "postversion": "git push && git push --tags && npm publish ./ --access public"
   },
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "ace-builds": "^1.4.5",
+    "codeceptjs": "^2.3.0",
     "css-loader": "^3.2.0",
     "eslint": "^6.2.0",
     "eslint-loader": "^2.2.1",
